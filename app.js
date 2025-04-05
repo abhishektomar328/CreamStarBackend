@@ -1,6 +1,5 @@
 import express from 'express';
 import cors from 'cors';
-import morgan from 'morgan';
 import {config} from 'dotenv';
 import {userRoute} from './routes/userRoute.js'
 import { imageRoute } from './routes/imageRoute.js';
@@ -13,7 +12,6 @@ app.use(cors({
   origin: [process.env.FRONTEND_URL],
   credentials: true
 }));
-app.use(morgan('dev'));
 
 app.use('/ping', (req, res) => {
     res.send('Pong');
