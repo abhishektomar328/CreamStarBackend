@@ -78,3 +78,23 @@ export const addImage = async (req, res) => {
     res.status(500).json({ message: 'Error uploading images', error: error.message });
   }
 };
+
+export const getAllCategoriesWithImages = async (req, res) => {
+  try {
+    // Retrieve all categories and their associated images
+    const categories = await ImageCategory.find().select('name images');
+
+    if (categories.length === 0) {
+      return res.status(404).json({ message: 'No categories found' });
+    }
+
+    // Return the categories with their images
+    res.status(200).json({
+      message: 'Categories retrieved successfully',
+      categories,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error retrieving categories', error: error.message });
+  }
+};
