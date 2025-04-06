@@ -20,17 +20,10 @@ app.use('/ping', (req, res) => {
 app.use('/api/auth',userRoute);
 app.use('/api/image',imageRoute);
 
-app.all('*', (req, res) => { 
-    res.status(404).send('OOPS 404 page not found');
-});
+// app.all('*', (req, res) => { 
+//     res.status(404).send('OOPS 404 page not found');
+// });
 
 export default app;
 
 
-// Note - difference between app.use() and app.get()
-
-// app.use() is for applying middleware to all routes or a specific path, handling all HTTP methods. It is especially useful for tasks like logging, body parsing, or global authentication checks.
-// app.get() is used when you want to handle only GET requests for a specific route.
-// Which is better? It depends on your use case:
-// If you're building a route handler for a GET request, use app.get().
-// If you need middleware (e.g., logging, authentication) that applies to multiple or all routes, or if you want to handle all HTTP methods, use app.use()

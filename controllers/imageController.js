@@ -3,7 +3,6 @@ import cloudinary from 'cloudinary'
 import fs from 'fs'
 import ImageCategory from '../models/categoryModel.js';
 
-// Controller to add images
 export const addImage = async (req, res) => {
   try {
     if (!req.files || req.files.length === 0) {
@@ -12,29 +11,33 @@ export const addImage = async (req, res) => {
 
     const uploadedImages = [];
 
-    // Loop through the uploaded files
     for (const file of req.files) {
-      // Upload each image to Cloudinary
+      console.log('Uploading file:', file.path);
       const result = await cloudinary.uploader.upload(file.path, {
-        folder: 'event_images',  // Store images in the 'event_images' folder in Cloudinary
-        resource_type: 'auto',  // Automatically detect file type (image, video, etc.)
+        folder: 'event_images',
+        resource_type: 'auto',
       });
 
-      // Delete the file from local storage after uploading to Cloudinary
-      fs.unlinkSync(file.path);
+      if (!result || !result.secure_url || !result.public_id) {
+        throw new Error('Failed to upload image to Cloudinary');
+      }
 
-      // Store the Cloudinary details (public_id, secure_url) for each image
+      // Delete the file after upload
+      if (fs.existsSync(file.path)) {
+        fs.unlinkSync(file.path);
+      } else {
+        console.error('File not found:', file.path);
+      }
+
       uploadedImages.push({
         public_id: result.public_id,
         secure_url: result.secure_url,
       });
     }
 
-    // Extract category name from the request body
     const { categoryName } = req.body;
-    console.log(categoryName)
+    console.log('Category Name:', categoryName);
 
-    // Validate category name
     const validCategories = [
       'Orchestra & Musical Nights',
       'Jagran and Mata Ki Chowki',
@@ -50,45 +53,37 @@ export const addImage = async (req, res) => {
       return res.status(400).json({ message: 'Invalid category name' });
     }
 
-    // Find or create the category document
     let categoryDoc = await ImageCategory.findOne({ name: categoryName });
 
     if (!categoryDoc) {
       categoryDoc = new ImageCategory({ name: categoryName, images: [] });
     }
 
-    // Add the uploaded images to the category
     categoryDoc.images.push(...uploadedImages);
-
-    // Save the updated category document
     await categoryDoc.save();
 
-    // Return the success response
     res.status(200).json({
       message: 'Images uploaded successfully',
       categoryDoc,
     });
   } catch (error) {
-    // Delete any files from local storage in case of an error
     if (req.files) {
       req.files.forEach((file) => fs.unlinkSync(file.path));
     }
 
-    console.error(error);
+    console.error(error); // Log the full error for debugging
     res.status(500).json({ message: 'Error uploading images', error: error.message });
   }
 };
 
 export const getAllCategoriesWithImages = async (req, res) => {
   try {
-    // Retrieve all categories and their associated images
     const categories = await ImageCategory.find().select('name images');
 
     if (categories.length === 0) {
       return res.status(404).json({ message: 'No categories found' });
     }
 
-    // Return the categories with their images
     res.status(200).json({
       message: 'Categories retrieved successfully',
       categories,

@@ -1,5 +1,4 @@
 import app from './app.js';
-// import connectToDb from './config/dbConfig.js';
 import cloudinary from 'cloudinary';
 import { connectToDb } from './config/dbConfig.js';
 

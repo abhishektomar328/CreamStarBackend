@@ -8,12 +8,10 @@ export const connectToDb = async ()=>{
         if(connection){
              console.log(`Connected to MongoDB:${connection.host}`);
         }
-        // process.exit(0);
 
     }
     catch(e){
         console.log(e);
-        process.exit(1);// exit code 1 : indicate process ended due to an error and Exit Code 0:indicate process completed successfully without any errors.
     }
 }
 
