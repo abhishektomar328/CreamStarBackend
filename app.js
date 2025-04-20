@@ -8,11 +8,26 @@ config();
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-const allowedOrigin = process.env.FRONTEND_URL || 'http://localhost:4200';
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  'http://localhost:4200'
+];
 app.use(cors({
-  origin: allowedOrigin,
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      return callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
+// app.use(cors({
+//   origin: allowedOrigin,
+//   credentials: true
+// }));
 // app.use(cors({
 //   origin: [process.env.FRONTEND_URL || 'http://localhost:4200' ],
 //   credentials: true
