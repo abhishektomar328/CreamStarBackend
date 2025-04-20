@@ -93,3 +93,48 @@ export const getAllCategoriesWithImages = async (req, res) => {
     res.status(500).json({ message: 'Error retrieving categories', error: error.message });
   }
 };
+
+export const deleteImage = async (req, res) => {
+  try {
+    const { categoryId, imagePublicId } = req.body;
+    console.log(req.body);
+
+    // Find the category document
+    const categoryDoc = await ImageCategory.findById(categoryId);
+
+    if (!categoryDoc) {
+      return res.status(404).json({ message: 'Category not found' });
+    }
+
+    // Find the image in the category
+    const imageIndex = categoryDoc.images.findIndex(
+      (image) => image.public_id === imagePublicId
+    );
+
+    if (imageIndex === -1) {
+      return res.status(404).json({ message: 'Image not found in this category' });
+    }
+
+    // Delete the image from Cloudinary
+    const cloudinaryResponse = await cloudinary.uploader.destroy(imagePublicId);
+
+    if (cloudinaryResponse.result !== 'ok') {
+      return res.status(500).json({ message: 'Error deleting image from Cloudinary' });
+    }
+
+    // Remove the image from the category's images array
+    categoryDoc.images.splice(imageIndex, 1);
+
+    // Save the updated category
+    await categoryDoc.save();
+
+    res.status(200).json({
+      message: 'Image deleted successfully',
+      categoryDoc,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error deleting image', error: error.message });
+  }
+};
+

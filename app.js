@@ -8,10 +8,20 @@ config();
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
 app.use(cors({
   origin: [process.env.FRONTEND_URL],
   credentials: true
 }));
+
+// const corsOptions = {
+//   origin: 'http://localhost:4200', // Allow requests from this origin
+//   methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed HTTP methods
+//   allowedHeaders: ['Content-Type', 'Authorization'], // Allowed headers
+//   credentials: true, // Allow cookies and credentials
+// };
+
+// app.use(cors(corsOptions));
 
 app.use('/ping', (req, res) => {
     res.send('Pong');
