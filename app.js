@@ -8,11 +8,15 @@ config();
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+const allowedOrigin = process.env.FRONTEND_URL || 'http://localhost:4200';
 app.use(cors({
-  origin: [process.env.FRONTEND_URL],
+  origin: allowedOrigin,
   credentials: true
 }));
+// app.use(cors({
+//   origin: [process.env.FRONTEND_URL || 'http://localhost:4200' ],
+//   credentials: true
+// }));
 
 // const corsOptions = {
 //   origin: 'http://localhost:4200', // Allow requests from this origin
